@@ -1,0 +1,30 @@
+#	https://github.com/github/gitignore/blob/master/Global/Ansible.gitignore
+#	https://github.com/ansible/ansible-examples/blob/master/.gitignore
+#	https://github.com/github/gitignore/blob/master/Global/Vim.gitignore
+
+# Created by https://www.gitignore.io/api/ansible,vim
+# Edit at https://www.gitignore.io/?templates=ansible,vim
+
+### Ansible ###
+*.retry
+
+### Vim ###
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+# End of https://www.gitignore.io/api/ansible,vim
