@@ -1,0 +1,33 @@
+#	https://docs.ansible.com/ansible/latest/modules/apt_module.html
+- hosts: debian-8 , debian-9 , ubuntu-12 , ubuntu-14 , ubuntu-16 , ubuntu-18
+  become: yes
+  tasks:
+    - name: Check for updates
+      #command: bash -c "aptitude update | egrep -v '://'"
+      apt: 
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: List available updates
+      command: bash -c "apt list --upgradable || aptitude --simulate --show-why --download-only --assume-yes safe-upgrade || apt-get --simulate --no-download --assume-yes"
+      register: output
+    - debug: var=output.stdout_lines
+
+    - name: Remove useless packages from the cache
+      #command: bash -c "echo autoclean clean purge | xargs -r -t -n 1 apt-get"
+      apt:
+        autoclean: yes
+
+    - name: Remove dependencies that are no longer required
+      #command: bash -c "apt-get --simulate --assume-yes autoremove"
+      apt:
+        autoremove: yes
+      register: output
+    - debug: var=output.stdout_lines
+
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: safe
+      register: output
+    - debug: var=output.stdout_lines
+
