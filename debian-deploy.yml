@@ -1,0 +1,54 @@
+- hosts: debian-8 , debian-9 , ubuntu-12 , ubuntu-14 , ubuntu-16 , ubuntu-18
+  become: yes
+  tasks:
+    - name: Check for updates
+      apt: 
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Remove packages
+      apt:
+        name: "{{ packages }}"
+        state: absent
+      vars:
+        packages:
+        - nfs-common
+        - nfs-kernel-server
+        - rpcbind
+        - exim4
+        - exim4-base
+        - exim4-config
+        - exim4-daemon-light
+
+    - name: Install packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+        - debian-archive-keyring
+        - sudo
+        - beep
+        - zerofree
+        - sysvbanner
+        - linuxlogo
+        - screen
+        - tmux
+        - vlock
+        - ncdu
+        - imvirt
+        - iptables-persistent
+        - iftop
+        - iotop
+        - nicstat
+        - ngrep
+        - dsniff
+        - tcpdump
+        - tshark
+        - vim
+        - unattended-upgrades
+        - rng-tools
+        - ntp
+        - postfix
+        - bsd-mailx
+
