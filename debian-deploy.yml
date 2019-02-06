@@ -34,8 +34,10 @@
         - linuxlogo
         - screen
         - tmux
+        - byobu
         - vlock
         - ncdu
+        - sshpass
         - imvirt
         - iptables-persistent
         - iftop
