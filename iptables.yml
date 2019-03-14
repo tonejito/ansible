@@ -1,0 +1,54 @@
+- hosts: linux
+  become: yes
+  vars:
+    loopback_iface: lo
+    # In AS278 we trust
+    trusted_networks:
+    - "132.247.0.0/16"
+    - "132.248.0.0/16"
+    - "192.100.199.0/24"
+    - "192.100.200.0/24"
+  tasks:
+  - name: Apply default INPUT and OUTPUT policy
+    iptables:
+      chain: "{{ item }}"
+      policy: ACCEPT
+    with_items:
+    - "INPUT"
+    - "OUTPUT"
+
+  - name: Allow INPUT loopback traffic
+    iptables:
+      table: filter
+      chain: INPUT
+      in_interface: "{{ loopback_iface }}"
+      jump: ACCEPT
+
+  - name: Allow OUTPUT loopback traffic
+    iptables:
+      table: filter
+      chain: OUTPUT
+      out_interface: "{{ loopback_iface }}"
+      jump: ACCEPT
+
+  - name: Allow ESTABLISHED and RELATED connections
+    iptables:
+      table: filter
+      chain: INPUT
+      ctstate: ESTABLISHED,RELATED
+      jump: ACCEPT
+
+  - name: Allow traffic from trusted networks
+    iptables:
+      table: filter
+      chain: INPUT
+      source: "{{ item }}"
+      jump: ACCEPT
+    with_items:
+    - "{{ trusted_networks }}"
+
+  - name: Block other traffic
+    iptables:
+      table: filter
+      chain: INPUT
+      jump: REJECT
