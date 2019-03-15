@@ -18,14 +18,25 @@
     - "INPUT"
     - "OUTPUT"
 
-  - name: Flush current filter INPUT and OUTPUT rules
+  - name: Reset iptables counters
+    command: iptables -t "{{ item }}" -Z
+    with_items:
+    - "filter"
+#    - "nat"
+#    - "mangle"
+#    - "raw"
+#    - "security"
+
+  - name: Flush current rules
     iptables:
       flush: True
-      table: "filter"
-      chain: "{{ item }}"
+      table: "{{ item }}"
     with_items:
-    - "INPUT"
-    - "OUTPUT"
+    - "filter"
+#    - "nat"
+#    - "mangle"
+#    - "raw"
+#    - "security"
 
   - name: Allow INPUT loopback traffic
     iptables:
