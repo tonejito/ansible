@@ -48,6 +48,13 @@
       ctstate: "ESTABLISHED,RELATED"
       jump: "ACCEPT"
 
+  - name: Allow ICMP traffic
+    iptables:
+      table: "filter"
+      chain: "INPUT"
+      protocol: "icmp"
+      jump: "ACCEPT"
+
   - name: Allow traffic from trusted networks
     iptables:
       table: "filter"
