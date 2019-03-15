@@ -1,9 +1,10 @@
 - hosts: linux
   become: yes
   vars:
+    default_policy: "ACCEPT"
     loopback_iface: lo
-    # In AS278 we trust
     trusted_networks:
+    # In AS278 we trust
     - "132.247.0.0/16"
     - "132.248.0.0/16"
     - "192.100.199.0/24"
@@ -12,43 +13,83 @@
   - name: Apply default INPUT and OUTPUT policy
     iptables:
       chain: "{{ item }}"
-      policy: ACCEPT
+      policy: "{{ default_policy }}"
+    with_items:
+    - "INPUT"
+    - "OUTPUT"
+
+  - name: Flush current filter INPUT and OUTPUT rules
+    iptables:
+      flush: True
+      table: "filter"
+      chain: "{{ item }}"
     with_items:
     - "INPUT"
     - "OUTPUT"
 
   - name: Allow INPUT loopback traffic
     iptables:
-      table: filter
-      chain: INPUT
+      table: "filter"
+      chain: "INPUT"
       in_interface: "{{ loopback_iface }}"
-      jump: ACCEPT
+      jump: "ACCEPT"
 
   - name: Allow OUTPUT loopback traffic
     iptables:
-      table: filter
-      chain: OUTPUT
+      table: "filter"
+      chain: "OUTPUT"
       out_interface: "{{ loopback_iface }}"
-      jump: ACCEPT
+      jump: "ACCEPT"
 
   - name: Allow ESTABLISHED and RELATED connections
     iptables:
-      table: filter
-      chain: INPUT
-      ctstate: ESTABLISHED,RELATED
-      jump: ACCEPT
+      table: "filter"
+      chain: "INPUT"
+      ctstate: "ESTABLISHED,RELATED"
+      jump: "ACCEPT"
 
   - name: Allow traffic from trusted networks
     iptables:
-      table: filter
-      chain: INPUT
+      table: "filter"
+      chain: "INPUT"
       source: "{{ item }}"
-      jump: ACCEPT
+      jump: "ACCEPT"
     with_items:
     - "{{ trusted_networks }}"
 
+  - name: Allow traffic on public ports
+    iptables:
+      table: "filter"
+      chain: "INPUT"
+      destination_port: "{{ item.port }}"
+      protocol: "{{ item.protocol }}"
+      state: "{{ item.state }}"
+      jump: "ACCEPT"
+    with_items:
+    - {
+        port: 22 ,
+        protocol: "tcp" ,
+        state: "absent"
+      }
+    - {
+        port: 80 ,
+        protocol: "tcp" ,
+        state: "present"
+      }
+    - {
+        port: 443 ,
+        protocol: "tcp" ,
+        state: "present"
+      }
+
   - name: Block other traffic
     iptables:
-      table: filter
-      chain: INPUT
-      jump: REJECT
+      table: "filter"
+      chain: "INPUT"
+      jump: "REJECT"
+
+  - name: List current iptables rules
+    command: iptables-save
+    register: output
+  - debug: var=output.stdout_lines
+
