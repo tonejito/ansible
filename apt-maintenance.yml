@@ -1,4 +1,5 @@
 #	https://docs.ansible.com/ansible/latest/modules/apt_module.html
+#	https://docs.ansible.com/ansible/latest/modules/debconf_module.html
 - hosts: debian-8 , debian-9 , ubuntu-12 , ubuntu-14 , ubuntu-16 , ubuntu-18
   become: yes
   tasks:
@@ -7,6 +8,21 @@
       apt: 
         update_cache: yes
         cache_valid_time: 3600
+
+    - name: Install 'unattended-upgrades'
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+        - unattended-upgrades
+
+    - name: Configure 'unattended-upgrades'
+      debconf:
+        name: unattended-upgrades
+        question: unattended-upgrades/enable_auto_updates
+        vtype: boolean
+        value: 'true'
 
     - name: List available updates
       command: bash -c "apt list --upgradable || aptitude --simulate --show-why --download-only --assume-yes safe-upgrade || apt-get --simulate --no-download --assume-yes"
